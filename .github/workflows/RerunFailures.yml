@@ -63,7 +63,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
           # Create release with the PR number in the release name
-          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.number }}"
+          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.head.sha }}"
           gh release create $release_name failed_modules.txt --title "Failed Modules for PR ${{ github.event.pull_request.number }}" --notes "Modules that failed during the test run"
           echo $release_name >> $GITHUB_ENV  # Pass the release name to the next job
 
@@ -82,7 +82,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
-          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.number }}"
+          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.head.sha }}"
           gh release download $release_name --pattern "failed_modules.txt"  # Use the release name passed
 
       - name: Read failed modules
