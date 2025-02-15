@@ -77,11 +77,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get PR SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=$(jq -r ".issue.number" < "$GITHUB_EVENT_PATH")
+          echo "PR Number: $PR_NUMBER"
+          PR_SHA=$(gh api repos/${{ github.repository }}/pulls/$PR_NUMBER --jq '.head.sha')
+          echo "PR SHA: $PR_SHA"
+          echo "PR_SHA=$PR_SHA" >> $GITHUB_ENV
+
       - name: Download failed test list from release
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
-          release_name="rerun-failed-modules-pr-${{ github.event.issue.pull_request.head.sha }}"
+          release_name="rerun-failed-modules-pr-$PR_SHA"
           gh release download $release_name --pattern "failed_modules.txt"  # Use the release name passed
 
       - name: Read failed modules
