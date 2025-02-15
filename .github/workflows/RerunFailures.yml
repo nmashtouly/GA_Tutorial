@@ -62,16 +62,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
-          # Create release using GitHub CLI or a third-party GitHub Action to upload the artifact
-          gh release create rerun-failed-modules-${{ github.sha }} failed_modules.txt --title "Failed Modules"
-  
+          # Create release with the PR number in the release name
+          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.number }}"
+          gh release create $release_name failed_modules.txt --title "Failed Modules for PR ${{ github.event.pull_request.number }}" --notes "Modules that failed during the test run"
+          echo $release_name >> $GITHUB_ENV  # Pass the release name to the next job
 
-  rrerun_failed_tests:
+  rerun_failed_tests:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'rerun-failure')
+    needs: run_tests  # Ensure the tests are run first and the release is available
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,8 +82,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
-          # Download the artifact from the release
-          gh release download rerun-failed-modules-${{ github.sha }} --pattern "failed_modules.txt"
+          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.number }}"
+          gh release download $release_name --pattern "failed_modules.txt"  # Use the release name passed
 
       - name: Read failed modules
         id: read_failed
@@ -97,4 +99,3 @@ jobs:
             # Simulate rerun
             if [ "$RANDOM" -gt 20000 ]; then exit 1; fi
           done
-   
