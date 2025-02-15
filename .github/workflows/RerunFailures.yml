@@ -53,31 +53,26 @@ jobs:
           name: failed-modules
           path: failed_modules.txt
 
-  rerun_failed_tests:
+      - name: Create a GitHub release for rerun
+        if: failure()
+        run: |
+          # Create release using GitHub CLI or a third-party GitHub Action to upload the artifact
+          gh release create rerun-failed-modules-${{ github.sha }} failed_modules.txt --title "Failed Modules"
+  
+
+  rrerun_failed_tests:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'rerun-failure')
     steps:
-      - name: Check if failed-modules artifact exists
-        id: check_artifact
+      - name: Download failed test list from release
         run: |
-          # Check if the artifact file exists; if it does not, set a flag
-          if ! curl --silent --fail --head "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" | grep -q "failed-modules"; then
-            echo "Artifact 'failed-modules' not found, exiting."
-            echo "artifact_not_found=true" >> $GITHUB_ENV
-            exit 1
-          fi
-
-      - name: Download failed test list
-        if: env.artifact_not_found != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: failed-modules
+          # Download the artifact from the release
+          gh release download rerun-failed-modules-${{ github.sha }} --pattern "failed_modules.txt"
 
       - name: Read failed modules
-        if: env.artifact_not_found != 'true'
         id: read_failed
         run: |
           modules=$(cat failed_modules.txt | tr '\n' ',')
@@ -85,10 +80,10 @@ jobs:
           echo "modules=$modules" >> $GITHUB_ENV
 
       - name: Rerun failed module tests
-        if: env.artifact_not_found != 'true'
         run: |
           for module in $(echo $modules | tr ',' ' '); do
             echo "Re-running tests in $module"
             # Simulate rerun
             if [ "$RANDOM" -gt 20000 ]; then exit 1; fi
           done
+   
