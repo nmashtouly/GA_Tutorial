@@ -74,6 +74,8 @@ jobs:
       contains(github.event.comment.body, 'rerun-failure')
     steps:
       - name: Download failed test list from release
+        env:
+          GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
           # Download the artifact from the release
           gh release download rerun-failed-modules-${{ github.sha }} --pattern "failed_modules.txt"
