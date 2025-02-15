@@ -60,12 +60,24 @@ jobs:
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'rerun-failure')
     steps:
+      - name: Check if failed-modules artifact exists
+        id: check_artifact
+        run: |
+          # Check if the artifact file exists; if it does not, set a flag
+          if ! curl --silent --fail --head "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" | grep -q "failed-modules"; then
+            echo "Artifact 'failed-modules' not found, exiting."
+            echo "artifact_not_found=true" >> $GITHUB_ENV
+            exit 1
+          fi
+
       - name: Download failed test list
+        if: env.artifact_not_found != 'true'
         uses: actions/download-artifact@v4
         with:
           name: failed-modules
 
       - name: Read failed modules
+        if: env.artifact_not_found != 'true'
         id: read_failed
         run: |
           modules=$(cat failed_modules.txt | tr '\n' ',')
@@ -73,6 +85,7 @@ jobs:
           echo "modules=$modules" >> $GITHUB_ENV
 
       - name: Rerun failed module tests
+        if: env.artifact_not_found != 'true'
         run: |
           for module in $(echo $modules | tr ',' ' '); do
             echo "Re-running tests in $module"
