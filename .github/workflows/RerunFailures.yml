@@ -73,6 +73,9 @@ jobs:
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'rerun-failure')
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download failed test list from release
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
