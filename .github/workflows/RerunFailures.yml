@@ -57,15 +57,31 @@ jobs:
           name: failed-modules
           path: failed_modules.txt
 
-      - name: Create a GitHub release for rerun
-        if: failure()
+  create_release:
+    runs-on: ubuntu-latest
+    needs: run_tests
+    if: failure()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download failure log
+        uses: actions/download-artifact@v4
+        with:
+          name: failed-modules
+
+      - name: Create or update the GitHub release
         env:
-          GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create release with the PR number in the release name
-          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.head.sha }}"
-          gh release create $release_name failed_modules.txt --title "Failed Modules for PR ${{ github.event.pull_request.number }}" --notes "Modules that failed during the test run"
-          echo $release_name >> $GITHUB_ENV  # Pass the release name to the next job
+          release_name="rerun-failed-modules-${{ github.event.pull_request.head.sha }}"
+          if gh release view "$release_name" >/dev/null 2>&1; then
+            echo "Updating existing release..."
+            gh release upload "$release_name" failed_modules.txt --clobber
+          else
+            echo "Creating new release..."
+            gh release create "$release_name" failed_modules.txt --title "Failed Modules" --notes "List of failed modules from PR."
+          fi
 
   rerun_failed_tests:
     runs-on: ubuntu-latest
