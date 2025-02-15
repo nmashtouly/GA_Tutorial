@@ -1,0 +1,50 @@
+name: Metrics and Parallel Jobs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  metrics_example:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [14, 16, 18]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Print environment
+        run: echo "Running on OS ${{ matrix.os }} with Node.js ${{ matrix.node }}"
+
+  parallel_jobs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: [task1, task2, task3]
+    steps:
+      - name: Perform task
+        run: echo "Executing ${{ matrix.task }} in parallel"
+
+  reference_action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Use third-party action
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - name: Print Node.js version
+        run: node -v
+
+  pr_comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: "Automated Review: Please check line X for improvements."
