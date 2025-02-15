@@ -93,7 +93,8 @@ jobs:
         run: |
           release_name="rerun-failed-modules-pr-${{ env.PR_SHA }}"
           echo "$release_name"
-          gh release download $release_name --pattern "failed_modules.txt"  # Use the release name passed
+          gh release download $release_name --pattern "failed-modules.zip"  # Use the release name passed
+          unzip failed-modules.zip
 
       - name: Read failed modules
         id: read_failed
