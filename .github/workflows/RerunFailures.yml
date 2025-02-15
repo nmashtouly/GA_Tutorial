@@ -1,5 +1,9 @@
 name: Module-Based Test Execution with Rerun Support
 
+permissions:
+  contents: write  # Granting permission to create releases
+  id-token: write
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
