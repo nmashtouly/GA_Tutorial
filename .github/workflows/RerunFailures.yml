@@ -73,7 +73,6 @@ jobs:
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'rerun-failure')
-    needs: run_tests  # Ensure the tests are run first and the release is available
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
