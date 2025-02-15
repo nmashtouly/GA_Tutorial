@@ -81,7 +81,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
-          release_name="rerun-failed-modules-pr-${{ github.event.pull_request.head.sha }}"
+          release_name="rerun-failed-modules-pr-${{ github.event.issue.pull_request.head.sha }}"
           gh release download $release_name --pattern "failed_modules.txt"  # Use the release name passed
 
       - name: Read failed modules
