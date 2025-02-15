@@ -55,6 +55,8 @@ jobs:
 
       - name: Create a GitHub release for rerun
         if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}  # Set the GH_TOKEN for authentication
         run: |
           # Create release using GitHub CLI or a third-party GitHub Action to upload the artifact
           gh release create rerun-failed-modules-${{ github.sha }} failed_modules.txt --title "Failed Modules"
