@@ -1,9 +1,7 @@
 name: Metrics and Parallel Jobs
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   metrics_example:
