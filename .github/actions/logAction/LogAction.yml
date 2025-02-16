@@ -1,0 +1,10 @@
+name: 'Log Action'
+description: 'A simple action that logs when it is called.'
+inputs:
+  message:
+    description: 'Message to log'
+    required: false
+    default: 'This action was called!'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

@@ -18,7 +18,7 @@ jobs:
       - name: Print environment
         run: echo "Running on OS ${{ matrix.os }} with Node.js ${{ matrix.node }}"
 
-  reference_action:
+  reference_external_action:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,6 +30,17 @@ jobs:
           node-version: 16
       - name: Print Node.js version
         run: node -v
+
+  reference_internal_action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use internal action
+        uses: ./.github/actions/logAction
+        with:
+          message: "This is a custom message"
 
   pr_comment:
     runs-on: ubuntu-latest
