@@ -50,7 +50,7 @@ jobs:
       - name: Use internal action
         uses: ./.github/actions/logAction
         with:
-          message: "This is a Nizar message"
+          message: "This is a Custom message"
 
   pr_comment:
     runs-on: ubuntu-latest
