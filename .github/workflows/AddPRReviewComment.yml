@@ -31,12 +31,15 @@ jobs:
               const filename = file.filename;
               const patch = file.patch; // This contains the diff
 
-              if (!patch) continue; // Some files (binary, etc.) won't have a patch
+              if (!patch) continue; // Skip files without a patch (binary files)
 
               const lines = patch.split("\n");
               for (let i = 0; i < lines.length; i++) {
                 if (lines[i].includes("TODO")) {
-                  const lineNumber = parseInt(lines[i].match(/^@@ -\d+,\d+ \+(\d+),/)[1]);
+                  const match = lines[i].match(/^@@ -\d+,\d+ \+(\d+),/);
+                  if (!match) continue; // Skip if line number is not found
+
+                  const lineNumber = parseInt(match[1]);
 
                   console.log(`Found "TODO" in ${filename} at line ${lineNumber}`);
 

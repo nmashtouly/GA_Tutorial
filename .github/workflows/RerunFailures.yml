@@ -5,13 +5,14 @@ permissions:
   id-token: write
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  issue_comment:
-    types: [created]
-    filters:
-      issue:
-        pull_request: exists
+  workflow_dispatch:
+#  pull_request:
+#    types: [opened, synchronize, reopened]
+#  issue_comment:
+#    types: [created]
+#    filters:
+#      issue:
+#        pull_request: exists
 
 jobs:
   discover_modules:
