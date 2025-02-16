@@ -136,3 +136,7 @@ jobs:
             # Simulate rerun
             if [ "$RANDOM" -gt 20000 ]; then exit 1; fi
           done
+
+#can use stale for deleting release after 24 hours for example
+#can use close pr event to delete release
+

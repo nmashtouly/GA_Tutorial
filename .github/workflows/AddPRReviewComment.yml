@@ -1,0 +1,57 @@
+name: PR Inline Comment
+
+on:
+  pull_request:
+
+jobs:
+  pr_comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get PR Diff
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/pulls/$PR_NUMBER/files --paginate > pr_diff.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find and Comment on TODOs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            // Read PR diff data
+            const prDiff = JSON.parse(fs.readFileSync('pr_diff.json', 'utf8'));
+
+            for (const file of prDiff) {
+              const filename = file.filename;
+              const patch = file.patch; // This contains the diff
+
+              if (!patch) continue; // Some files (binary, etc.) won't have a patch
+
+              const lines = patch.split("\n");
+              for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes("TODO")) {
+                  const lineNumber = parseInt(lines[i].match(/^@@ -\d+,\d+ \+(\d+),/)[1]);
+
+                  console.log(`Found "TODO" in ${filename} at line ${lineNumber}`);
+
+                  // Create an inline comment
+                  await github.rest.pulls.createReviewComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: context.issue.number,
+                    body: "Consider addressing this TODO.",
+                    commit_id: context.payload.pull_request.head.sha,
+                    path: filename,
+                    line: lineNumber,
+                  });
+
+                  break; // Comment only once per file
+                }
+              }
+            }
