@@ -44,8 +44,6 @@ jobs:
 
       - name: Use internal action
         uses: ./.github/actions/logAction
-        with:
-          message: "This is a custom message"
 
   pr_comment:
     runs-on: ubuntu-latest
