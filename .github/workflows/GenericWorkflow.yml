@@ -2,6 +2,11 @@ name: Metrics and Parallel Jobs
 
 on:
   workflow_dispatch:
+    inputs:
+      inputTest:
+        description: 'Test input'
+        required: true
+        default: 'default value'
 
 jobs:
   metrics_example:
@@ -44,6 +49,8 @@ jobs:
 
       - name: Use internal action
         uses: ./.github/actions/logAction
+        with:
+          message: "This is a Nizar message"
 
   pr_comment:
     runs-on: ubuntu-latest
@@ -53,3 +60,10 @@ jobs:
         uses: mshick/add-pr-comment@v2
         with:
           message: "Automated Review: Please check line X for improvements."
+
+  log_input:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log input
+        run: |
+          echo "Input was: ${{ github.event.inputs.inputTest }}"
