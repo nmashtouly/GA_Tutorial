@@ -33,16 +33,22 @@ jobs:
               const patch = file.patch; // This contains the diff
               console.log(patch);
               if (!patch) continue; // Skip files without a patch (binary files)
-
+              
+              let currentLineNumber = null;
               const lines = patch.split("\n");
               for (let i = 0; i < lines.length; i++) {
-                if (lines[i].includes("TODO")) {
+    
+                if (lines[i].startsWith("@@")) {
+                  // Extract the starting line number
                   const match = lines[i].match(/^@@ -\d+,\d+ \+(\d+),/);
-                  if (!match) continue; // Skip if line number is not found
+                  if (match) {
+                    currentLineNumber = parseInt(match[1]);
+                  }
+                }
+                if (lines[i].includes("TODO")) {
+                  if (currentLineNumber === null) continue; // Skip if no line number found
 
-                  const lineNumber = parseInt(match[1]);
-
-                  console.log(`Found "TODO" in ${filename} at line ${lineNumber}`);
+                  console.log(`Found "TODO" in ${filename} at line ${currentLineNumber}`);
 
                   // Create an inline comment
                   await github.rest.pulls.createReviewComment({
@@ -52,10 +58,17 @@ jobs:
                     body: "Consider addressing this TODO.",
                     commit_id: context.payload.pull_request.head.sha,
                     path: filename,
-                    line: lineNumber,
+                    line: currentLineNumber,
                   });
 
                   break; // Comment only once per file
+                }
+    
+    
+    
+                // Increment line number if it's an added line
+                if (lines[i].startsWith("+")) {
+                  currentLineNumber++;
                 }
               }
             }
