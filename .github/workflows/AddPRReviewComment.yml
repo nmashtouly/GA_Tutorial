@@ -29,8 +29,9 @@ jobs:
 
             for (const file of prDiff) {
               const filename = file.filename;
+              console.log(`Checking file: ${filename}`);
               const patch = file.patch; // This contains the diff
-
+              console.log(patch);
               if (!patch) continue; // Skip files without a patch (binary files)
 
               const lines = patch.split("\n");
