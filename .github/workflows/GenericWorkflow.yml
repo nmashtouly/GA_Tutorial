@@ -37,6 +37,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: |
+          cd .github/actions/logAction
+          npm install
+
       - name: Use internal action
         uses: ./.github/actions/logAction
         with:
