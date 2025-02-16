@@ -3,6 +3,9 @@ name: PR Inline Comment
 on:
   pull_request:
 
+permissions:
+  pull-requests: write
+
 jobs:
   pr_comment:
     runs-on: ubuntu-latest
